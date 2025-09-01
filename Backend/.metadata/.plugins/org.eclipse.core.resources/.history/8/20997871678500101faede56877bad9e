@@ -1,0 +1,5 @@
+package com.bankofapi.userservice.repository;
+
+public class UserRepository {
+
+}

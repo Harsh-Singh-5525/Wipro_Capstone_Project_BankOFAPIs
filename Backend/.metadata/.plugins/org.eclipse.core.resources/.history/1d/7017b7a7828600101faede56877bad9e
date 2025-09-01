@@ -1,0 +1,56 @@
+package com.bankofapis.account.controller;
+
+import com.bankofapis.account.model.Account;
+import com.bankofapis.account.service.AccountService;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/accounts")
+public class AccountController {
+
+    private final AccountService accountService;
+
+    public AccountController(AccountService accountService) {
+        this.accountService = accountService;
+    }
+
+  //Inside your controller method:
+  String username = SecurityContextHolder.getContext().getAuthentication().getName();
+  //Resolve userId by calling User Service if needed, then pass to service
+    @GetMapping
+    public ResponseEntity<List<Account>> getAllAccounts(@RequestParam(required = false) Integer userId) {
+        List<Account> accounts;
+        if (userId != null) {
+            accounts = accountService.getAccountsByUserId(userId);
+        } else {
+            accounts = accountService.getAllAccounts();
+        }
+        return ResponseEntity.ok(accounts);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Account> getAccountById(@PathVariable Integer id) {
+        Account account = accountService.getAccountById(id);
+        if (account == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(account);
+    }
+
+    @PostMapping
+    public ResponseEntity<Account> createAccount(@RequestBody Account account) {
+        Account createdAccount = accountService.createAccount(account);
+        return ResponseEntity.ok(createdAccount);
+    }
+    @PutMapping("/{id}/updateBalance")
+    public Account updateBalance(@PathVariable Integer id, @RequestParam Double newBalance) {
+        return accountService.updateBalance(id, newBalance);
+    }
+
+}

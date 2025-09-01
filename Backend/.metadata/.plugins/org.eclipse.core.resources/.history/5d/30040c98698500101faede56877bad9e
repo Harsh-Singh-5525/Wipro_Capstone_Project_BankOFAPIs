@@ -1,0 +1,5 @@
+package com.bankofapi.userservice.security;
+
+public class JwtUtil {
+
+}

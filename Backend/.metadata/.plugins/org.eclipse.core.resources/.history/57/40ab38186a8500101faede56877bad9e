@@ -1,0 +1,5 @@
+package com.bankofapi.userservice.service;
+
+public class CustomUserDetailsService {
+
+}

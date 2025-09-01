@@ -1,0 +1,5 @@
+package com.bankofapis.backend.controller;
+
+public class UserController {
+
+}

@@ -1,0 +1,5 @@
+package com.bankofapis.transaction.client;
+
+public class UserClient {
+
+}

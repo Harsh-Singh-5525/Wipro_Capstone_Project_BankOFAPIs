@@ -1,0 +1,54 @@
+package com.bankofapi.userservice.service;
+
+import com.bankofapi.userservice.model.User;
+import com.bankofapi.userservice.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    // Generate a unique token for the password (simplified tokenization)
+    private String generatePasswordToken(String password) {
+        // You may combine password and UUID or just generate UUID
+        return UUID.randomUUID().toString().replace("-", "");
+    }
+
+    public User registerUser(User user) {
+        // Generate token for password instead of hashing (not recommended for production)
+        user.setPassword(generatePasswordToken(user.getPassword()));
+        return userRepository.save(user);
+    }
+
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    public boolean usernameExists(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+    public Optional<User> getUserById(Long userId) {
+        return userRepository.findById(userId);
+    }
+
+    public User updateUser(Long userId, User updatedUser) {
+        Optional<User> existingUserOpt = userRepository.findById(userId);
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+            existingUser.setEmail(updatedUser.getEmail());
+            existingUser.setPhone(updatedUser.getPhone());
+            existingUser.setAddress(updatedUser.getAddress());
+            // Update other fields as needed except password and username
+            return userRepository.save(existingUser);
+        } else {
+            return null;
+        }
+    }
+}

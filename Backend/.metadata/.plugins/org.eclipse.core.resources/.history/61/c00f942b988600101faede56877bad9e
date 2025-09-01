@@ -1,0 +1,74 @@
+package com.bankofapis.account.controller;
+
+import com.bankofapis.account.client.UserClient;
+import com.bankofapis.account.dto.UserDTO;
+import com.bankofapis.account.model.Account;
+import com.bankofapis.account.service.AccountService;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/accounts")
+public class AccountController {
+
+    private final AccountService accountService;
+    private final UserClient userClient;
+
+    public AccountController(AccountService accountService, UserClient userClient) {
+        this.accountService = accountService;
+        this.userClient = userClient;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Account>> getAllAccounts() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserDTO userDTO = userClient.getUserByUsername(username);
+        Integer userId = userDTO.getUserId();
+
+        List<Account> accounts = accountService.getAccountsByUserId(userId);
+        return ResponseEntity.ok(accounts);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Account> getAccountById(@PathVariable Integer id) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserDTO userDTO = userClient.getUserByUsername(username);
+        Integer userId = userDTO.getUserId();
+
+        Account account = accountService.getAccountById(id);
+        if (!account.getUserId().equals(userId)) {
+            return ResponseEntity.status(403).build();
+        }
+        return ResponseEntity.ok(account);
+    }
+
+    @PostMapping
+    public ResponseEntity<Account> createAccount(@RequestBody Account account) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserDTO userDTO = userClient.getUserByUsername(username);
+        Integer userId = userDTO.getUserId();
+
+        account.setUserId(userId);
+        Account createdAccount = accountService.createAccount(account);
+        return ResponseEntity.ok(createdAccount);
+    }
+
+    @PutMapping("/{id}/updateBalance")
+    public ResponseEntity<Account> updateBalance(@PathVariable Integer id, @RequestParam Double newBalance) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserDTO userDTO = userClient.getUserByUsername(username);
+        Integer userId = userDTO.getUserId();
+
+        Account account = accountService.getAccountById(id);
+        if (!account.getUserId().equals(userId)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        Account updatedAccount = accountService.updateBalance(id, newBalance);
+        return ResponseEntity.ok(updatedAccount);
+    }
+}

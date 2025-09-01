@@ -1,0 +1,45 @@
+package com.bankofapis.transaction.controller;
+
+import com.bankofapis.transaction.client.AccountClient;
+import com.bankofapis.transaction.dto.AccountDTO;
+import com.bankofapis.transaction.model.Transaction;
+import com.bankofapis.transaction.repository.TransactionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/transactions")
+public class TransactionController {
+
+    @Autowired
+    private TransactionRepository transactionRepository;
+
+    @Autowired
+    private AccountClient accountClient;
+
+    @GetMapping
+    public List<Transaction> getAllTransactions() {
+        return transactionRepository.findAll();
+    }
+
+    @PostMapping
+    public Transaction createTransaction(@RequestBody Transaction transaction) {
+        // Get both accounts
+        AccountDTO fromAccount = accountClient.getAccount(transaction.getFromAccountId());
+        AccountDTO toAccount = accountClient.getAccount(transaction.getToAccountId());
+
+        // Check balance
+        if (fromAccount.getAccountBalance() < transaction.getAmount()) {
+            throw new RuntimeException("Insufficient Balance in Account " + fromAccount.getAccountId());
+        }
+
+        // Deduct and add
+        accountClient.updateBalance(fromAccount.getAccountId(), fromAccount.getAccountBalance() - transaction.getAmount());
+        accountClient.updateBalance(toAccount.getAccountId(), toAccount.getAccountBalance() + transaction.getAmount());
+
+        // Save transaction
+        return transactionRepository.save(transaction);
+    }
+}

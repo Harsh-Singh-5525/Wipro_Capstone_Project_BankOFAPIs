@@ -1,0 +1,104 @@
+package com.bankofapis.transaction.controller;
+
+import com.bankofapis.transaction.client.AccountClient;
+import com.bankofapis.transaction.client.UserClient;
+import com.bankofapis.transaction.dto.AccountDTO;
+import com.bankofapis.transaction.model.Transaction;
+import com.bankofapis.transaction.repository.TransactionRepository;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/transaction")
+public class TransactionController {
+
+    private final TransactionRepository transactionRepository;
+    private final AccountClient accountClient;
+    private final UserClient userClient;
+
+    public TransactionController(TransactionRepository transactionRepository,
+                                 AccountClient accountClient,
+                                 UserClient userClient) {
+        this.transactionRepository = transactionRepository;
+        this.accountClient = accountClient;
+        this.userClient = userClient;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Transaction>> getAllTransactions(Authentication authentication,
+                                                                @RequestParam(required = false) Integer userId) {
+        String username = authentication.getName();
+        Integer currentUserId = fetchUserIdFromUsername(username);
+
+        if (userId != null && !userId.equals(currentUserId)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        List<Transaction> transactions = transactionRepository.findByUserId(currentUserId);
+        return ResponseEntity.ok(transactions);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Transaction> getTransactionById(@PathVariable Integer id, Authentication authentication) {
+        Transaction transaction = transactionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Transaction not found"));
+
+        String username = authentication.getName();
+        Integer currentUserId = fetchUserIdFromUsername(username);
+
+        if (!transaction.getUserId().equals(currentUserId)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(transaction);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createTransaction(@RequestBody Transaction transaction, Authentication authentication) {
+        String username = authentication.getName();
+        Integer currentUserId = fetchUserIdFromUsername(username);
+
+        if (!transaction.getUserId().equals(currentUserId)) {
+            return ResponseEntity.status(403).body("Unauthorized user for this transaction.");
+        }
+
+        AccountDTO fromAccount = accountClient.getAccount(transaction.getFromAccountId());
+        AccountDTO toAccount = accountClient.getAccount(transaction.getToAccountId());
+
+        if (fromAccount == null || toAccount == null) {
+            return ResponseEntity.badRequest().body("One or both accounts do not exist.");
+        }
+
+        if (fromAccount.getAccountBalance() < transaction.getAmount()) {
+            return ResponseEntity.badRequest().body("Insufficient funds in the source account.");
+        }
+
+        try {
+            AccountDTO updatedFrom = accountClient.updateBalance(transaction.getFromAccountId(),
+                    fromAccount.getAccountBalance() - transaction.getAmount());
+            if (updatedFrom == null) {
+                return ResponseEntity.status(500).body("Failed to update source account balance.");
+            }
+
+            AccountDTO updatedTo = accountClient.updateBalance(transaction.getToAccountId(),
+                    toAccount.getAccountBalance() + transaction.getAmount());
+            if (updatedTo == null) {
+                // Here you might consider rolling back the fromAccount update or compensating
+                return ResponseEntity.status(500).body("Failed to update target account balance.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error during balance update: " + e.getMessage());
+        }
+
+        Transaction created = transactionRepository.save(transaction);
+        return ResponseEntity.ok(created);
+    }
+
+    private Integer fetchUserIdFromUsername(String username) {
+        return userClient.getUserByUsername(username).getUserId();
+    }
+}
