@@ -1,5 +1,0 @@
-package com.bankofapis.transaction.dto;
-
-public class AccountDTO {
-
-}

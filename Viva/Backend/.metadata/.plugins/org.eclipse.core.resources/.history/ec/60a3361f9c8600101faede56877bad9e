@@ -1,5 +1,0 @@
-package com.bankofapis.transaction.security;
-
-public class FeignConfig {
-
-}

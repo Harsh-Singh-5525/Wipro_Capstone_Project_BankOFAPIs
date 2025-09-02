@@ -1,4 +1,0 @@
-INDEX VERSION 1.4+D:\BankOfAPI Project\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
-2463124329.index
-1050042363.index
-2862044391.index

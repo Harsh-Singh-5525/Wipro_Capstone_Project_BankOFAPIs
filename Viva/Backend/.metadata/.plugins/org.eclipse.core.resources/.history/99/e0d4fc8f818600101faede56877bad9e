@@ -1,5 +1,0 @@
-package com.bankofapis.account.config;
-
-public class JwtFilter {
-
-}
