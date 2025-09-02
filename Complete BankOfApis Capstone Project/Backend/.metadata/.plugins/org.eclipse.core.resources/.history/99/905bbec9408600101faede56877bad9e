@@ -1,0 +1,5 @@
+package com.bankofapis.account.controller;
+
+public class BankController {
+
+}

@@ -1,0 +1,11 @@
+<nav *ngIf="isLoggedIn" style="padding: 10px; background-color: #f0f0f0; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+  <div style="font-weight: 600; color: #333;">
+    Hello {{ username }}, welcome to Bank of APIs
+  </div>
+  <div>
+    <button routerLink="/accounts" style="padding: 8px 16px; background-color: #3f85f7; color: white; border: none; border-radius: 24px; cursor: pointer; font-weight: 600;">Accounts</button>
+    <button routerLink="/transactions" style="padding: 8px 16px; background-color: #3f85f7; color: white; border: none; border-radius: 24px; cursor: pointer; font-weight: 600;">View Transactions</button>
+    <button routerLink="/transaction-create" style="padding: 8px 16px; background-color: #3f85f7; color: white; border: none; border-radius: 24px; cursor: pointer; font-weight: 600;">New Transaction</button>
+  </div>
+</nav>
+<router-outlet></router-outlet>

@@ -1,0 +1,14 @@
+<div class="app-container login-container">
+  <h2>Bank of APIs — Login</h2>
+  <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+    <input type="text" name="username" [(ngModel)]="username" placeholder="Username" required />
+    <input type="password" name="password" [(ngModel)]="password" placeholder="Password" required />
+    <button type="submit" [disabled]="loginForm.invalid">Login</button>
+  </form>
+
+  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+  <p>
+    Don't have an account? 
+    <a routerLink="/register">Register here</a>
+  </p>
+</div>

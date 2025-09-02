@@ -1,0 +1,5 @@
+package com.bankofapis.account.repository;
+
+public interface BankRepository {
+
+}

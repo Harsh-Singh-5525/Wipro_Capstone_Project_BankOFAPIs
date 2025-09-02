@@ -1,0 +1,5 @@
+package com.bankofapis.transaction.dto;
+
+public class UserDTO {
+
+}

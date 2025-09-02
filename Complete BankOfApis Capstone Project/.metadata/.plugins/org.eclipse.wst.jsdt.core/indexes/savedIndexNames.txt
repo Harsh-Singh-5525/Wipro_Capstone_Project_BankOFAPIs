@@ -1,0 +1,9 @@
+INDEX VERSION 1.4+D:\BankOfAPI Project\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+2463124329.index
+2862044391.index
+1050042363.index
+813701553.index
+2355300604.index
+271337345.index
+2633438186.index
+2613676287.index

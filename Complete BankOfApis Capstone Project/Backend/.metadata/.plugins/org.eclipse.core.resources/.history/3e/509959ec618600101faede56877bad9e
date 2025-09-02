@@ -1,0 +1,5 @@
+package com.bankofapis.account.dto;
+
+public class UserDTO {
+
+}

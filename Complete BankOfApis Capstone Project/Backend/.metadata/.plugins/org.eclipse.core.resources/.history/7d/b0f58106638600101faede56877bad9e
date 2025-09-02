@@ -1,0 +1,57 @@
+package com.bankofapis.account.controller;
+
+import com.bankofapis.account.model.Account;
+import com.bankofapis.account.model.User;
+import com.bankofapis.account.service.AccountService;
+import com.bankofapis.account.service.UserServiceClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/accounts")
+public class AccountController {
+
+    @Autowired
+    private AccountService accountService;
+
+    @Autowired
+    private UserServiceClient userServiceClient; // Feign or REST client to get user info by username
+
+    // GET all accounts for authenticated user only
+    @GetMapping
+    public ResponseEntity<List<Account>> getAllAccounts(Authentication authentication,
+                                                       @RequestParam(required = false) Integer userId) {
+        String username = authentication.getName();
+        User currentUser = userServiceClient.getUserByUsername(username);
+
+        Integer currentUserId = currentUser.getUserId();
+
+        if (userId != null && !userId.equals(currentUserId)) {
+            return ResponseEntity.status(403).build();  // Forbidden if user tries to access other user's accounts
+        }
+
+        List<Account> accounts = accountService.getAccountsByUserId(currentUserId);
+        return ResponseEntity.ok(accounts);
+    }
+
+    // GET account by id with ownership check
+    @GetMapping("/{id}")
+    public ResponseEntity<Account> getAccountById(@PathVariable Integer id, Authentication authentication) {
+        Account account = accountService.getAccountById(id);
+
+        String username = authentication.getName();
+        User currentUser = userServiceClient.getUserByUsername(username);
+
+        if (!account.getUserId().equals(currentUser.getUserId())) {
+            return ResponseEntity.status(403).build();  // Forbidden
+        }
+
+        return ResponseEntity.ok(account);
+    }
+
+    // Other methods (POST, PUT) remain unchanged
+}

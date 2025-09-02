@@ -1,0 +1,5 @@
+package com.bankofapis.transaction.config;
+
+public class SecurityConfig {
+
+}

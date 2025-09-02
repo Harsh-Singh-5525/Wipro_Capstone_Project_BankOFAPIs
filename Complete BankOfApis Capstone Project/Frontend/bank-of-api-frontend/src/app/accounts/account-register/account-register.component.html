@@ -1,0 +1,29 @@
+<div class="app-container account-register-container">
+  <h2>Create New Account</h2>
+
+  <form (ngSubmit)="onSubmit()" #accountForm="ngForm">
+    <label>Account Type</label>
+    <select name="accountType" [(ngModel)]="accountType" required>
+      <option value="" disabled selected>Select account type</option>
+      <option value="SAVINGS">Savings</option>
+      <option value="CURRENT">Current</option>
+    </select>
+
+    <label>Initial Balance</label>
+    <input type="number" name="accountBalance" [(ngModel)]="accountBalance" required min="0" />
+
+    <label>Account Password</label>
+    <input type="password" name="secretPassword" [(ngModel)]="secretPassword" required />
+
+    <label>Bank</label>
+    <select name="bankId" [(ngModel)]="bankId" required>
+      <option value="" disabled selected>Select bank</option>
+      <option *ngFor="let bank of banks" [value]="bank.bankId">{{ bank.name }}</option>
+    </select>
+
+    <button type="submit" [disabled]="accountForm.invalid">Create Account</button>
+  </form>
+
+  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+  <p *ngIf="successMessage" class="success">{{ successMessage }}</p>
+</div>
