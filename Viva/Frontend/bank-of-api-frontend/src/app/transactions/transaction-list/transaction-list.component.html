@@ -1,0 +1,32 @@
+<div class="app-container transaction-list-container">
+  <h2>Your Transactions</h2>
+
+  <table *ngIf="transactions.length > 0; else noTransactions">
+    <thead>
+      <tr>
+        <th>Transaction ID</th>
+        <th>Type</th>
+        <th>Amount</th>
+        <th>From Account</th>
+        <th>To Account</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let txn of transactions">
+        <td>{{ txn.transactionId }}</td>
+        <td>{{ txn.transactionType }}</td>
+        <td>{{ txn.amount | currency }}</td>
+        <td>{{ txn.fromAccountId }}</td>
+        <td>{{ txn.toAccountId }}</td>
+        <td>{{ txn.transactionDate | date:'short' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <ng-template #noTransactions>
+    <p>You have no transactions.</p>
+  </ng-template>
+
+  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+</div>

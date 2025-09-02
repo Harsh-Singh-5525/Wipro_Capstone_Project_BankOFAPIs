@@ -1,0 +1,32 @@
+<div class="app-container account-list-container">
+  <h2>Your Accounts</h2>
+
+  <table *ngIf="accounts.length > 0; else noAccounts">
+    <thead>
+      <tr>
+        <th>Account ID</th>
+        <th>Type</th>
+        <th>Balance</th>
+        <th>Bank</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let account of accounts">
+        <td>{{ account.accountId }}</td>
+        <td>{{ account.accountType }}</td>
+        <td>{{ account.accountBalance | currency }}</td>
+        <td>{{ account.bank?.bankName || 'N/A' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <ng-template #noAccounts>
+    <p>You have no accounts.</p>
+    <button routerLink="/account-register" class="button-link">Open a new Account</button>
+  </ng-template>
+
+  <div class="buttons" *ngIf="accounts.length > 0">
+    <button routerLink="/transactions" class="button-link" style="margin-right: 10px;">View Transactions</button>
+    <button routerLink="/transaction-create" class="button-link">Create New Transaction</button>
+  </div>
+</div>

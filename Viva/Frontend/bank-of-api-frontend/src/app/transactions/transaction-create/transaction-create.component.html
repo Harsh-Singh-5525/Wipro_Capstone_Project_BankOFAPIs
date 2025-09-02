@@ -1,0 +1,27 @@
+<div class="app-container transaction-create-container">
+  <h2>Create New Transaction</h2>
+
+  <form (ngSubmit)="onSubmit()" #transactionForm="ngForm">
+    <label>Transaction Type</label>
+    <input type="text" name="transactionType" [(ngModel)]="transactionType" readonly />
+    
+    <label>Amount</label>
+    <input type="number" name="amount" [(ngModel)]="amount" required min="0.01" step="0.01" />
+    
+    <label>From Account</label>
+    <select name="fromAccountId" [(ngModel)]="fromAccountId" required>
+      <option value="" disabled selected>Select account</option>
+      <option *ngFor="let account of userAccounts" [value]="account.accountId">
+        {{ account.accountType }} - {{ account.accountBalance | currency }}
+      </option>
+    </select>
+    
+    <label>To Account</label>
+    <input type="number" name="toAccountId" [(ngModel)]="toAccountId" required placeholder="Enter destination account ID" />
+    
+    <button type="submit" [disabled]="transactionForm.invalid">Submit</button>
+  </form>
+
+  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+  <p *ngIf="successMessage" class="success">{{ successMessage }}</p>
+</div>
