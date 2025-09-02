@@ -1,0 +1,5 @@
+package com.bankofapis.model;
+
+public class User {
+
+}

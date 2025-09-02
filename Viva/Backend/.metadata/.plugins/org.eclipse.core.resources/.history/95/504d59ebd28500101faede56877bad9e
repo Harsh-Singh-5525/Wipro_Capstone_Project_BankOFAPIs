@@ -1,0 +1,5 @@
+package com.bankofapis.user.security;
+
+public class CustomUserDetails {
+
+}

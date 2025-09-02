@@ -1,0 +1,5 @@
+package com.bankofapis.backend.config;
+
+public class SecurityConfig {
+
+}

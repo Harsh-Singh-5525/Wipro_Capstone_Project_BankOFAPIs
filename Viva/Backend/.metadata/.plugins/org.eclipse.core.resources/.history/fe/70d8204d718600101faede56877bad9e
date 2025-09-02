@@ -1,0 +1,5 @@
+package com.bankofapis.transaction.util;
+
+public class JwtUtil {
+
+}

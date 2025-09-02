@@ -1,0 +1,5 @@
+package com.bankofapi.userservice.dto;
+
+public class JwtResponse {
+
+}

@@ -1,0 +1,81 @@
+package com.bankofapis.account.controller;
+
+import com.bankofapis.account.model.Account;
+import com.bankofapis.account.dto.UserDTO;
+import com.bankofapis.account.service.AccountService;
+import com.bankofapis.account.service.UserServiceClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/accounts")
+public class AccountController {
+
+    private final AccountService accountService;
+    private final UserServiceClient userServiceClient;
+
+    public AccountController(AccountService accountService, UserServiceClient userServiceClient) {
+        this.accountService = accountService;
+        this.userServiceClient = userServiceClient;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Account>> getAllAccounts(Authentication authentication,
+                                                       @RequestParam(required = false) Integer userId) {
+        String username = authentication.getName();
+        UserDTO currentUser = userServiceClient.getUserByUsername(username);
+        if (currentUser == null) {
+            return ResponseEntity.status(401).build();  // Unauthorized if user not found
+        }
+
+        Integer currentUserId = currentUser.getUserId();
+        if (userId != null && !userId.equals(currentUserId)) {
+            return ResponseEntity.status(403).build();  // Forbidden if accessing others' accounts
+        }
+
+        List<Account> accounts = accountService.getAccountsByUserId(currentUserId);
+        return ResponseEntity.ok(accounts);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Account> getAccountById(@PathVariable Integer id, Authentication authentication) {
+        Account account = accountService.getAccountById(id);
+        if (account == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        String username = authentication.getName();
+        UserDTO currentUser = userServiceClient.getUserByUsername(username);
+        if (currentUser == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        if (!account.getUserId().equals(currentUser.getUserId())) {
+            return ResponseEntity.status(403).build();  // Forbidden if account doesn't belong to authenticated user
+        }
+
+        return ResponseEntity.ok(account);
+    }
+
+    @PostMapping
+    public ResponseEntity<Account> createAccount(@RequestBody Account account, Authentication authentication) {
+        String username = authentication.getName();
+
+        UserDTO currentUser = userServiceClient.getUserByUsername(username);
+        if (currentUser == null) {
+            return ResponseEntity.status(401).build(); // Unauthorized
+        }
+
+        if (!account.getUserId().equals(currentUser.getUserId())) {
+            return ResponseEntity.status(403).build(); // Forbidden if userId mismatch
+        }
+
+        Account createdAccount = accountService.createAccount(account);
+        return ResponseEntity.ok(createdAccount);
+    }
+
+
+}
